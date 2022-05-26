@@ -1,0 +1,21 @@
+[package]
+name = "ricedq"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[dependencies.iced]
+version = "0.4"
+featrues = ["tokio"]
+
+[dependencies.tokio]
+version = "1"
+featrues = ["full"]
+
+[dependencies.ricq]
+version = "0.1"
+
+[dependencies]
+rfd = "0.8"
+iced_native="0.5"
+derivative="2"
