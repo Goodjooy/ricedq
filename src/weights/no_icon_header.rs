@@ -1,4 +1,4 @@
-use iced::{Color, Element, Point, Size, Text};
+use iced::{Color, Element, Size, Text};
 use iced_native::{
     layout,
     renderer::{self, Style},
@@ -57,7 +57,7 @@ impl<Message> Widget<Message, iced::Renderer> for NoIconHead {
     fn draw(
         &self,
         renderer: &mut iced::Renderer,
-        style: &Style,
+        _style: &Style,
         layout: iced_native::Layout<'_>,
         cursor_position: iced::Point,
         viewport: &iced::Rectangle,
