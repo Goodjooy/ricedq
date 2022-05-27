@@ -1,11 +1,15 @@
 use iced::{
     executor, scrollable, Alignment, Application, Color, Column, Command, Container, Row, Rule,
-    Subscription, Text,
+    Text,
 };
-use iced_native::{widget::Scrollable, subscription, Event};
+use iced_native::{subscription, widget::Scrollable, Event};
 
 use crate::{
-    weights::{msg_edit, no_icon_header::NoIconHead},
+    weights::{
+        click_item::{self, ClickItem},
+        msg_edit,
+        no_icon_header::NoIconHead,
+    },
     FONT,
 };
 
@@ -13,9 +17,12 @@ pub struct App {
     state: State,
 
     info: Vec<Info>,
+    users: Vec<String>,
+    users_states: Vec<click_item::State>,
     self_id: i64,
 
     left: scrollable::State,
+
     msg_window: scrollable::State,
 
     msg_editor: msg_edit::State,
@@ -29,7 +36,8 @@ pub enum State {
 #[derive(Debug, Clone)]
 pub enum Msg {
     Send(String),
-    Key(Event)
+    Key(Event),
+    SelectUser(usize),
 }
 
 #[derive(Debug, Clone)]
@@ -60,6 +68,8 @@ impl Application for App {
                     uin: 114514,
                     contain: String::from("好耶"),
                 }],
+                users: vec!["哇哈哈".into(), "011好的".into()],
+                users_states: vec![click_item::State::new(); 2],
                 self_id: 1919,
                 msg_editor: msg_edit::State::new(),
             },
@@ -79,22 +89,20 @@ impl Application for App {
                     contain: s,
                 });
             }
-            Msg::Key(evn) => {
-                match evn {
-                    Event::Keyboard(evn) => {
-
-                        println!("{:?}",evn)
-                    },
-                    _=>{}
+            Msg::Key(evn) => match evn {
+                Event::Keyboard(evn) => {
+                    println!("{:?}", evn)
                 }
-            }
+                _ => {}
+            },
+            Msg::SelectUser(uid) => println!("Switch to {}", uid),
         };
 
         Command::none()
     }
 
     fn subscription(&self) -> iced::Subscription<Self::Message> {
-        subscription::events().map(|evn|Msg::Key(evn))
+        subscription::events().map(|evn| Msg::Key(evn))
     }
     fn view(&mut self) -> iced::Element<'_, Self::Message> {
         self.msg_window.snap_to(1f32);
@@ -103,46 +111,29 @@ impl Application for App {
             State::Login => {
                 let content = Row::new()
                     .push(
-                        Scrollable::new(&mut self.left)
-                            .width(iced::Length::Units(256))
-                            .height(iced::Length::Fill)
-                            .spacing(10)
-                            .push(
-                                Container::new(
+                        self.users
+                            .iter()
+                            .zip(self.users_states.iter_mut())
+                            .enumerate()
+                            .map(|(id, (name, state))| {
+                                let content = Container::new(
                                     Row::new()
                                         .push(NoIconHead::new(
                                             25,
-                                            "好耶".chars().next().unwrap(),
-                                            Color::from_rgb(0.8, 0.2, 0.2),
-                                        ))
-                                        .push(Text::new("好耶").font(FONT))
-                                        .padding(5)
-                                        .spacing(15)
-                                        .align_items(Alignment::Center),
-                                )
-                                .align_x(iced::alignment::Horizontal::Left)
-                                .align_y(iced::alignment::Vertical::Center)
-                                .width(iced::Length::Fill)
-                                .height(iced::Length::Units(50)),
-                            )
-                            .push(
-                                Container::new(
-                                    Row::new()
-                                        .push(NoIconHead::new(
-                                            25,
-                                            "+好耶".chars().next().unwrap(),
+                                            name.chars().next().unwrap(),
                                             Color::from_rgb(0.2, 0.8, 0.2),
                                         ))
-                                        .push(Text::new("+好耶").font(FONT))
+                                        .push(Text::new(name).font(FONT))
                                         .padding(5)
                                         .spacing(15)
                                         .align_items(Alignment::Center),
-                                )
-                                .align_x(iced::alignment::Horizontal::Left)
-                                .align_y(iced::alignment::Vertical::Center)
-                                .width(iced::Length::Fill)
-                                .height(iced::Length::Units(50)),
-                            ),
+                                );
+                                ClickItem::new(state, content, id, Msg::SelectUser)
+                            })
+                            .fold(Scrollable::new(&mut self.left), |s, ci| s.push(ci))
+                            .width(iced::Length::Units(256))
+                            .height(iced::Length::Fill)
+                            .spacing(10),
                     )
                     .push(Rule::vertical(30))
                     .push(
