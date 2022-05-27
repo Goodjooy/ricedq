@@ -2,7 +2,7 @@ use iced::{
     executor, scrollable, Alignment, Application, Color, Column, Command, Container, Row, Rule,
     Subscription, Text,
 };
-use iced_native::widget::Scrollable;
+use iced_native::{widget::Scrollable, subscription, Event};
 
 use crate::{
     weights::{msg_edit, no_icon_header::NoIconHead},
@@ -29,6 +29,7 @@ pub enum State {
 #[derive(Debug, Clone)]
 pub enum Msg {
     Send(String),
+    Key(Event)
 }
 
 #[derive(Debug, Clone)]
@@ -78,15 +79,25 @@ impl Application for App {
                     contain: s,
                 });
             }
+            Msg::Key(evn) => {
+                match evn {
+                    Event::Keyboard(evn) => {
+
+                        println!("{:?}",evn)
+                    },
+                    _=>{}
+                }
+            }
         };
 
         Command::none()
     }
 
     fn subscription(&self) -> iced::Subscription<Self::Message> {
-        Subscription::none()
+        subscription::events().map(|evn|Msg::Key(evn))
     }
     fn view(&mut self) -> iced::Element<'_, Self::Message> {
+        self.msg_window.snap_to(1f32);
         match self.state {
             State::NoLogin => Container::new(Text::new("未登录")),
             State::Login => {
@@ -131,8 +142,7 @@ impl Application for App {
                                 .align_y(iced::alignment::Vertical::Center)
                                 .width(iced::Length::Fill)
                                 .height(iced::Length::Units(50)),
-                            )
-                            ,
+                            ),
                     )
                     .push(Rule::vertical(30))
                     .push(
