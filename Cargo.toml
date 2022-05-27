@@ -17,5 +17,5 @@ version = "0.1"
 
 [dependencies]
 rfd = "0.8"
-iced_native="0.5"
-derivative="2"
+iced_native = "0.5"
+derivative = "2"

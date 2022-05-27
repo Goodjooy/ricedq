@@ -20,7 +20,7 @@ impl<'a, Message> MessageEdit<'a, Message> {
                 .push(
                     TextInput::new(
                         &mut state.text_input,
-                        "your message",
+                        " your message",
                         match &state.input {
                             Some(s) => s.as_str(),
                             None => "",
@@ -29,7 +29,8 @@ impl<'a, Message> MessageEdit<'a, Message> {
                     )
                     .width(iced::Length::FillPortion(9))
                     .font(FONT)
-                    .on_submit(Msg::Send),
+                    .on_submit(Msg::Send)
+                    .style(style::TextInput)
                 )
                 .push(
                     Button::new(
@@ -39,7 +40,8 @@ impl<'a, Message> MessageEdit<'a, Message> {
                             .horizontal_alignment(iced::alignment::Horizontal::Center),
                     )
                     .on_press(Msg::Send)
-                    .width(iced::Length::FillPortion(1)),
+                    .width(iced::Length::FillPortion(1))
+                    .style(style::Button),
                 ),
             on_send: Box::new(handle),
             input: &mut state.input,
@@ -161,7 +163,6 @@ impl<'a, Message> Widget<Message, Renderer> for MessageEdit<'a, Message> {
         self.inner
             .mouse_interaction(layout, cursor_position, viewport, renderer)
     }
-
 }
 
 impl<'a, Message> Into<Element<'a, Message>> for MessageEdit<'a, Message>
@@ -170,5 +171,56 @@ where
 {
     fn into(self) -> Element<'a, Message> {
         Element::new(self)
+    }
+}
+
+mod style {
+    use iced::{button, text_input, Background, Color};
+
+    pub(super) struct TextInput;
+
+    impl text_input::StyleSheet for TextInput {
+        fn active(&self) -> text_input::Style {
+            text_input::Style {
+                background: iced::Background::Color(Color::WHITE),
+                border_radius: 5.0,
+                border_width: 1.0,
+                border_color: Color::from_rgb(0.8, 0.8, 0.8),
+            }
+        }
+
+        fn focused(&self) -> text_input::Style {
+            text_input::Style {
+                border_color: Color::from_rgb(0.1, 0.1, 0.1),
+                ..self.active()
+            }
+        }
+
+        fn placeholder_color(&self) -> iced::Color {
+            Color::from_rgb(0.8, 0.8, 0.8)
+        }
+
+        fn value_color(&self) -> iced::Color {
+            Color::from_rgb(0.3, 0.3, 0.3)
+        }
+
+        fn selection_color(&self) -> iced::Color {
+            Color::from_rgba(0.3, 0.3, 1.0, 0.5)
+        }
+    }
+
+    pub(super) struct Button;
+
+    impl button::StyleSheet for Button {
+        fn active(&self) -> button::Style {
+            button::Style {
+                shadow_offset: iced::Vector::new(0.2, 0.2),
+                background: Some(Background::Color(Color::from_rgb(0.9, 0.8, 0.7))),
+                border_radius: 2f32,
+                border_width: 1.0,
+                border_color: [0.8, 0.8, 0.8].into(),
+                text_color: Color::BLACK,
+            }
+        }
     }
 }
